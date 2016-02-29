@@ -36,6 +36,7 @@ public class SfView extends SurfaceView  implements SurfaceHolder.Callback{
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setTextSize(64);
+        this.setZOrderOnTop(true);
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
 //        surfaceHolder.setKeepScreenOn(true);
@@ -43,6 +44,7 @@ public class SfView extends SurfaceView  implements SurfaceHolder.Callback{
     }
 
     private void drawView(){
+        System.out.println("canvas==null:"+(canvas==null));
         if(canvas != null){
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(Color.BLUE);

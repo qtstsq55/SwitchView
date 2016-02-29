@@ -9,6 +9,8 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import java.io.File;
@@ -29,78 +32,72 @@ public class MainActivity extends AppCompatActivity {
     public final static int MINIMUMLOGICALFONTSIZE = 8;
     public final static int DEFAULTFIXEDFONTSIZE = 13;
     public final static int DEFAULTFONTSIZE = 16;
-    private WebView webview;
+
     private WebViewClient webviewClient;
     private WebChromeClient webviewChromeClient;
-    private SfView sfView;
-    private CommonView commonView;
+
     protected int index = 0;
     protected Button btn_switch;
-    protected ViewGroup layout;
+    protected FrameLayout layout;
+    private WebView webview;
+    private SfView sfView;
+    private CommonView commonView;
     private RelativeLayout.LayoutParams params;
-
+private Handler handler=new Handler(){
+    @Override
+    public void handleMessage(Message msg) {
+        super.handleMessage(msg);
+        switchView(index);
+        this.removeMessages(0);
+    }
+};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
         getWindow().setFormat(PixelFormat.TRANSLUCENT);
         initView();
-        initViewsEvent();
+        layout.addView(commonView);
     }
 
     private void initWebView(){
         webview = new WebView(this);
-        webview.setLayoutParams(params);
         initEngine();
     }
 
-    private void initSfView(){
-        sfView = new SfView(this);
-        sfView.setLayoutParams(params);
-    }
-
-
     private void initView(){
-        layout = (ViewGroup) findViewById(R.id.layout_main);
-        commonView = (CommonView) findViewById(R.id.commonview);
         btn_switch = (Button) findViewById(R.id.btn_switch);
-        params = (RelativeLayout.LayoutParams) commonView.getLayoutParams();
-        params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
-        params.width = RelativeLayout.LayoutParams.MATCH_PARENT;
-        initWebView();
-        initSfView();
-    }
-
-
-
-    private void initViewsEvent() {
         btn_switch.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                index++;
-                if (index == 3) {
-                    index = 0;
-                }
+                index=(++index)%3;
+               // handler.sendEmptyMessage(0);
                 switchView(index);
+
             }
         });
-    }
+        layout = (FrameLayout) findViewById(R.id.layout_main);
+        commonView =new CommonView(this);
+        sfView = new SfView(this);
+        sfView.setBackgroundColor(Color.WHITE);
+        initWebView();
 
+    }
 
     private void switchView(int index){
         switch (index){
               case 0:
+                  layout.removeAllViews();
                   layout.addView(commonView);
-                  layout.removeView(webview);
                   break;
               case 1:
+                  layout.removeAllViews();
                   layout.addView(sfView);
-                  layout.removeView(commonView);
                   break;
               case 2:
+                  layout.removeAllViews();
                   layout.addView(webview);
-                  layout.removeView(sfView);
                   break;
           }
     }
@@ -129,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         webview.getSettings().setSupportZoom(true);
         webview.getSettings().setBuiltInZoomControls(true);
         webview.getSettings().setUseWideViewPort(true);
-        webview.setBackgroundColor(Color.RED);
+//        webview.setBackgroundColor(Color.RED);
         webview.getSettings().setLayoutAlgorithm(LayoutAlgorithm.NORMAL);
         if(VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1){
             webview.getSettings().setDisplayZoomControls(false);
